@@ -557,6 +557,13 @@ body{display:flex;flex-direction:column;background:var(--navy)}
       <button class="mob-sheet-x" onclick="mobToggleList()">×</button>
     </div>
   </div>
+  <div id="nearby-result" style="display:none;padding:14px;border-bottom:1px solid #eee;background:#f8f9fc">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <b style="font-size:13px;color:var(--ink)" id="nearby-title">가까운 성지</b>
+      <button onclick="document.getElementById('nearby-result').style.display='none'" style="background:#e8e8e8;border:none;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;font-weight:700;color:#555">×</button>
+    </div>
+    <div id="nearby-result-body" style="font-size:13px;line-height:2"></div>
+  </div>
   <div class="mob-sheet-body" id="mob-list-body"></div>
 </div>
 
@@ -1622,17 +1629,24 @@ function detectInappBrowser() {
 function openInExternalBrowser() {
   const url = location.href;
   const ua = navigator.userAgent || '';
-  // 안드로이드: intent 스킴으로 크롬 강제 실행
   if (/android/i.test(ua)) {
-    location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+    // 안드로이드: 크롬 커스텀탭 또는 기본브라우저로 열기
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    // intent scheme으로 크롬 강제 실행
+    location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
   } else {
-    // iOS: 클립보드 복사 후 안내
+    // iOS: 클립보드 복사
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        alert('주소를 복사했습니다.\nSafari 브라우저를 열고 주소창에 붙여넣기 해주세요.');
+        alert('주소를 복사했습니다.\nSafari를 열고 주소창에 붙여넣기 해주세요.');
+      }).catch(() => {
+        alert('아래 주소를 Safari에서 열어주세요:\n' + url);
       });
     } else {
-      alert('주소창의 URL을 복사해서\nSafari 브라우저에서 열어주세요:\n' + url);
+      alert('아래 주소를 Safari에서 열어주세요:\n' + url);
     }
   }
 }
@@ -1654,47 +1668,7 @@ function initSW(){
 }
 </script>
 
-<style>
-#pilgrim-result{
-position:fixed;
-left:10px;
-right:10px;
-max-height:38vh;
-overflow:auto;
-background:white;
-padding:14px;
-border-radius:14px;
-box-shadow:0 4px 20px rgba(0,0,0,.28);
-font-family:'Noto Sans KR',sans-serif;
-font-size:13px;
-z-index:460;
-border:1px solid var(--border);
-}
-@media(max-width:768px){
-  #pilgrim-result{
-    bottom:calc(70px + var(--sb));
-  }
-}
-@media(min-width:769px){
-  #pilgrim-result{
-    left:310px;
-    right:auto;
-    width:280px;
-    bottom:16px;
-  }
-}
-#pilgrim-result-close{
-  float:right;background:#e8e8e8;border:none;border-radius:50%;
-  width:26px;height:26px;font-size:15px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;color:#444;
-  line-height:1;
-}
-</style>
 
-<div id="pilgrim-result" style="display:none">
-  <button id="pilgrim-result-close" onclick="document.getElementById('pilgrim-result').style.display='none'">×</button>
-  <div id="pilgrim-result-body"></div>
-</div>
 
 <script>
 
@@ -1713,138 +1687,80 @@ return R*c;
 }
 
 function getMyLocation(callback){
-
 // 이미 현위치를 알고 있으면 바로 사용
-if(typeof myLLng!=='undefined' && myLLng){
-  const latlng=myLLng.getLat?myLLng:null;
-  if(latlng){
-    callback(myLLng.getLat(), myLLng.getLng());
-    return;
-  }
-}
-
-if(!navigator.geolocation){
-  showPilgrimError("이 기기는 위치 기능을 지원하지 않습니다.");
+if(typeof myLLng!=='undefined' && myLLng && myLLng.getLat){
+  callback(myLLng.getLat(), myLLng.getLng());
   return;
 }
-
+if(!navigator.geolocation){
+  showNearbyResult("오류","<span style='color:#c0392b'>⚠️ 이 기기는 위치 기능을 지원하지 않습니다.</span>");
+  return;
+}
 // 로딩 표시
-const box=document.getElementById("pilgrim-result");
-const body=document.getElementById("pilgrim-result-body");
-body.innerHTML="<span style='color:#888'>📍 현위치를 가져오는 중...</span>";
-box.style.display="block";
-
+showNearbyResult("📍 현위치 찾는 중...","<span style='color:#888'>잠시만 기다려주세요...</span>");
 navigator.geolocation.getCurrentPosition(function(pos){
-  // 기존 인프라에도 위치 저장
   if(typeof setMyLoc==='function') setMyLoc(pos.coords.latitude, pos.coords.longitude);
   callback(pos.coords.latitude, pos.coords.longitude);
 },function(err){
   let msg="위치를 가져올 수 없습니다.";
-  if(err.code===1) msg="위치 권한이 거부됐습니다.\n브라우저 주소창 옆 🔒 아이콘을 눌러 위치 권한을 허용해 주세요.";
-  else if(err.code===3) msg="위치 요청 시간이 초과됐습니다. 다시 시도해 주세요.";
-  showPilgrimError(msg);
+  if(err.code===1) msg="위치 권한이 거부됐습니다. 브라우저 설정에서 위치 권한을 허용해주세요.";
+  else if(err.code===3) msg="위치 요청 시간 초과. 다시 시도해주세요.";
+  showNearbyResult("오류","<span style='color:#c0392b'>⚠️ "+msg+"</span>");
 },{enableHighAccuracy:true, timeout:12000, maximumAge:60000});
+}
 
+function showNearbyResult(title, html){
+  // 성지목록 시트가 닫혀있으면 열기
+  if(!_mobListOpen) mobToggleList();
+  const box=document.getElementById("nearby-result");
+  const titleEl=document.getElementById("nearby-title");
+  const body=document.getElementById("nearby-result-body");
+  if(titleEl) titleEl.textContent=title;
+  if(body) body.innerHTML=html;
+  if(box) box.style.display="block";
 }
 
 function showPilgrimError(msg){
-const box=document.getElementById("pilgrim-result");
-const body=document.getElementById("pilgrim-result-body");
-body.innerHTML="<span style='color:#c0392b'>⚠️ "+msg+"</span>";
-box.style.display="block";
+  showNearbyResult("오류","<span style='color:#c0392b'>⚠️ "+msg+"</span>");
 }
 
 function getShrineData(){
-
-if(typeof SHRINES!=="undefined"){
-return SHRINES;
-}
-
-if(typeof shrines!=="undefined"){
-return shrines;
-}
-
-return [];
-
+  if(typeof SHRINES!=="undefined") return SHRINES;
+  if(typeof shrines!=="undefined") return shrines;
+  return [];
 }
 
 function findNearbyShrines(){
-
 getMyLocation(function(lat,lng){
-
-const data=getShrineData();
-
-if(data.length===0){
-alert("성지 데이터 배열을 찾을 수 없습니다.");
-return;
-}
-
-let list=data
-.filter(s=>s.lat && s.lng)
-.map(s=>{
-s._dist=calcDistance(lat,lng,s.lat,s.lng);
-return s;
-})
-.sort((a,b)=>a._dist-b._dist)
-.slice(0,10);
-
-showResult("가까운 성지",list);
-
+  const data=getShrineData();
+  if(data.length===0){ showNearbyResult("오류","성지 데이터가 없습니다."); return; }
+  let list=data
+    .filter(s=>s.lat && s.lng)
+    .map(s=>{ s._dist=calcDistance(lat,lng,s.lat,s.lng); return s; })
+    .sort((a,b)=>a._dist-b._dist)
+    .slice(0,10);
+  let html=list.map((s,i)=>
+    `<span style='color:#aaa'>${i+1}.</span> <b>${s.name}</b> <span style='color:var(--gold2);font-size:11px'>(${s._dist.toFixed(1)} km)</span><br>`
+  ).join('');
+  showNearbyResult("📍 가까운 성지", html);
 });
-
 }
 
 function createPilgrimageCourse(){
-
 getMyLocation(function(lat,lng){
-
-const data=getShrineData();
-
-if(data.length===0){
-alert("성지 데이터 배열을 찾을 수 없습니다.");
-return;
-}
-
-let course=data
-.filter(s=>s.lat && s.lng)
-.map(s=>{
-s._dist=calcDistance(lat,lng,s.lat,s.lng);
-return s;
-})
-.sort((a,b)=>a._dist-b._dist)
-.slice(0,5);
-
-showResult("추천 순례 코스",course);
-
-drawCourseOnMap(course);
-
+  const data=getShrineData();
+  if(data.length===0){ showNearbyResult("오류","성지 데이터가 없습니다."); return; }
+  let course=data
+    .filter(s=>s.lat && s.lng)
+    .map(s=>{ s._dist=calcDistance(lat,lng,s.lat,s.lng); return s; })
+    .sort((a,b)=>a._dist-b._dist)
+    .slice(0,5);
+  let html=course.map((s,i)=>
+    `<span style='color:#aaa'>${i+1}.</span> <b>${s.name}</b> <span style='color:var(--gold2);font-size:11px'>(${s._dist.toFixed(1)} km)</span><br>`
+  ).join('');
+  showNearbyResult("✨ 추천 순례 코스", html);
+  drawCourseOnMap(course);
 });
-
-}
-
-function showResult(title,list){
-
-const box=document.getElementById("pilgrim-result");
-const body=document.getElementById("pilgrim-result-body");
-
-let html="<b style='font-size:14px;color:var(--ink)'>"+title+"</b><br><br>";
-
-list.forEach((s,i)=>{
-
-html+= "<span style='color:#888;font-size:11px'>"+(i+1)+".</span> <b>"+s.name+"</b>";
-
-if(s._dist){
-html+=" <span style='color:var(--gold2);font-size:11px'>("+s._dist.toFixed(1)+" km)</span>";
-}
-
-html+="<br>";
-
-});
-
-body.innerHTML=html;
-
-box.style.display="block";
-
 }
 
 function drawCourseOnMap(course){
