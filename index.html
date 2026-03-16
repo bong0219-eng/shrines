@@ -177,12 +177,11 @@ body{display:flex;flex-direction:column;background:var(--navy)}
     top: env(safe-area-inset-top, 0px);
     left: 0; right: 0;
     z-index: 500;
-    background: rgba(14,21,53,0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(212,170,106,.25);
-    height: 48px;
+    background: var(--navy);
+    border-bottom: 2px solid rgba(212,170,106,.4);
+    height: 56px;
     transition: transform .25s cubic-bezier(.4,0,.2,1), opacity .25s;
+    box-shadow: 0 2px 12px rgba(0,0,0,.4);
   }
   #mob-tabbar.hidden {
     transform: translateY(-100%);
@@ -192,26 +191,33 @@ body{display:flex;flex-direction:column;background:var(--navy)}
   .mob-tab {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    gap: 2px; cursor: pointer; border: none;
+    gap: 3px; cursor: pointer; border: none;
     background: none; font-family: inherit;
-    color: rgba(212,170,106,.6);
-    font-size: 10px; font-weight: 700;
+    color: rgba(255,255,255,.4);
+    font-size: 11px; font-weight: 700;
     letter-spacing: .03em;
-    border-bottom: 2px solid transparent;
-    transition: color .15s, border-color .15s;
+    border-bottom: 3px solid transparent;
+    transition: color .15s, border-color .15s, background .15s;
     padding: 0;
+    position: relative;
   }
-  .mob-tab .tab-icon { font-size: 16px; line-height: 1; }
+  .mob-tab .tab-icon { font-size: 20px; line-height: 1; }
+  .mob-tab:active { background: rgba(255,255,255,.06); }
   .mob-tab.active {
     color: var(--gold);
     border-bottom-color: var(--gold);
+    background: rgba(212,170,106,.08);
+  }
+  /* 탭 사이 구분선 */
+  .mob-tab + .mob-tab {
+    border-left: 1px solid rgba(255,255,255,.08);
   }
   /* 지도 영역을 탭바 높이만큼 아래로 */
-  #main { margin-top: 48px; height: calc(100vh - 48px); }
-  #map-area { height: calc(100vh - 48px); }
+  #main { margin-top: 56px; height: calc(100vh - 56px); }
+  #map-area { height: calc(100vh - 56px); }
 
   /* 시트는 탭바 바로 아래부터 */
-  .mob-sheet { bottom: 0; }
+  .mob-sheet { bottom: 0; top: 56px; max-height: calc(100vh - 56px); }
   #info-card { bottom: 0; }
 
   /* 시트 내부 버튼 */
@@ -1525,20 +1531,24 @@ function selectModal(idx) {
   if(role==='start'){
     if(rS)restoreMkr(rS);
     rS={idx,shrine:s};
-    markers[idx]?.marker.setImage(mkrImgRoute(mkrColor(s.type),'출'));
+    try{ markers[idx]?.marker.setImage(mkrImgRoute(mkrColor(s.type),'출')); }catch(e){}
     setRsTxt('start',s.name);
+    // 모바일: 경로탐색 시트 열기
+    if(!isPc()&&!_mobRouteOpen) mobToggleRoute();
     enterRouteMode();
-    if(rE)calcRoute();
+    if(rE){ calcRoute(); }
     else showGuide(isPc()?'도착 성지를 클릭하세요':'도착 성지를 탭하세요');
   } else {
     if(rE)restoreMkr(rE);
     rE={idx,shrine:s};
-    markers[idx]?.marker.setImage(mkrImgRoute(mkrColor(s.type),'도'));
+    try{ markers[idx]?.marker.setImage(mkrImgRoute(mkrColor(s.type),'도')); }catch(e){}
     setRsTxt('end',s.name);
     showEndX(true);
+    // 모바일: 경로탐색 시트 열기
+    if(!isPc()&&!_mobRouteOpen) mobToggleRoute();
     enterRouteMode();
     hideGuide();
-    if(rS)calcRoute();
+    if(rS){ calcRoute(); }
     else showGuide(isPc()?'출발 성지를 클릭하세요':'출발 성지를 탭하세요');
   }
   if(s.lat&&s.lng) map.panTo(new kakao.maps.LatLng(s.lat,s.lng));
