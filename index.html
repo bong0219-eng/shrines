@@ -166,49 +166,55 @@ body{display:flex;flex-direction:column;background:var(--navy)}
 
 /* ── 하단 탭바 (모바일 전용) ── */
 /* ── 모바일 FAB + 시트 구조 ── */
-#fab-list, #fab-route { display: none; }
+/* 모바일 FAB - 모두 숨김 (상단 탭바로 대체) */
+#fab-list, #fab-route, #fab-nearby { display: none !important; }
 
 @media(max-width:768px) {
-  /* FAB: 기본 하단 표시 */
-  #fab-list {
-    display: flex; position: fixed;
-    left: 14px; bottom: calc(12px + var(--sb));
-    z-index: 450; align-items: center; gap: 7px;
-    background: rgba(14,21,53,0.82);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  /* ── 상단 탭바 ── */
+  #mob-tabbar {
+    display: flex;
+    position: fixed;
+    top: env(safe-area-inset-top, 0px);
+    left: 0; right: 0;
+    z-index: 500;
+    background: rgba(14,21,53,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(212,170,106,.25);
+    height: 48px;
+    transition: transform .25s cubic-bezier(.4,0,.2,1), opacity .25s;
+  }
+  #mob-tabbar.hidden {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .mob-tab {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px; cursor: pointer; border: none;
+    background: none; font-family: inherit;
+    color: rgba(212,170,106,.6);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .03em;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    padding: 0;
+  }
+  .mob-tab .tab-icon { font-size: 16px; line-height: 1; }
+  .mob-tab.active {
     color: var(--gold);
-    border: 1.5px solid rgba(212,170,106,.6);
-    border-radius: 28px; padding: 11px 18px;
-    font-size: 13px; font-weight: 700; font-family: inherit;
-    cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,.35);
-    transition: opacity .2s, transform .2s;
+    border-bottom-color: var(--gold);
   }
-  #fab-route {
-    display: flex; position: fixed;
-    right: 14px; bottom: calc(12px + var(--sb));
-    z-index: 450; align-items: center; gap: 7px;
-    background: rgba(14,21,53,0.82);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    color: var(--gold);
-    border: 1.5px solid rgba(212,170,106,.6);
-    border-radius: 28px; padding: 11px 18px;
-    font-size: 13px; font-weight: 700; font-family: inherit;
-    cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,.35);
-    transition: opacity .2s, transform .2s;
-  }
-  /* 시트 열렸을 때 FAB 숨김 */
-  #fab-list.hidden, #fab-route.hidden {
-    opacity: 0; pointer-events: none; transform: translateY(20px);
-  }
-  /* 시트: FAB 높이(약 50px) + 여백 위에서 시작 */
-  .mob-sheet {
-    bottom: calc(62px + var(--sb));
-  }
-  /* info-card: FAB 위 */
-  #info-card {
-    bottom: calc(62px + var(--sb));
-  }
-  /* 시트 내부 단독 버튼 (성지목록 내 "경로탐색" / 경로탐색 내 "성지목록") */
+  /* 지도 영역을 탭바 높이만큼 아래로 */
+  #main { margin-top: 48px; height: calc(100vh - 48px); }
+  #map-area { height: calc(100vh - 48px); }
+
+  /* 시트는 탭바 바로 아래부터 */
+  .mob-sheet { bottom: 0; }
+  #info-card { bottom: 0; }
+
+  /* 시트 내부 버튼 */
   .sheet-inner-btn {
     display: flex; align-items: center; gap: 7px;
     background: rgba(212,170,106,.12);
@@ -523,16 +529,18 @@ body{display:flex;flex-direction:column;background:var(--navy)}
   </div><!-- /map-area -->
 </div><!-- /main -->
 
-<!-- 모바일 FAB 버튼 -->
-<button id="fab-list" onclick="mobToggleList()">
-  <span style="font-size:16px">📋</span>성지목록
-</button>
-<button id="fab-nearby" onclick="findNearbyShrines()" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--sb));z-index:450;align-items:center;gap:7px;background:rgba(14,21,53,0.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--gold);border:1.5px solid rgba(212,170,106,.6);border-radius:28px;padding:11px 18px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.35);">
-  <span style="font-size:16px">📍</span>내 주변 성지
-</button>
-<button id="fab-route" onclick="mobToggleRoute()">
-  <span style="font-size:16px">🧭</span>경로탐색
-</button>
+<!-- 모바일 상단 탭바 -->
+<div id="mob-tabbar">
+  <button class="mob-tab" id="tab-list" onclick="mobToggleList()">
+    <span class="tab-icon">📋</span>성지목록
+  </button>
+  <button class="mob-tab" id="tab-nearby" onclick="findNearbyShrines()">
+    <span class="tab-icon">📍</span>내 주변
+  </button>
+  <button class="mob-tab" id="tab-route" onclick="mobToggleRoute()">
+    <span class="tab-icon">🧭</span>경로탐색
+  </button>
+</div>
 
 <!-- 모바일: 성지목록 시트 -->
 <div class="mob-sheet" id="mob-list-sheet">
@@ -1148,7 +1156,8 @@ function _setFabBottom(px) {
 function _closeAllSheets() {
   document.getElementById('mob-list-sheet')?.classList.remove('open');
   document.getElementById('mob-route-sheet')?.classList.remove('open');
-  // FAB hidden은 개별 toggle에서 제어
+  document.getElementById('mob-tabbar')?.classList.remove('hidden');
+  document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
 }
 
 let _mobListOpen = false;
@@ -1161,21 +1170,19 @@ function mobToggleList() {
   _mobRouteOpen = false;
 
   const ls = document.getElementById('mob-list-sheet');
-  const fl = document.getElementById('fab-list');
-  const fr = document.getElementById('fab-route');
+  const tb = document.getElementById('mob-tabbar');
 
   if (_mobListOpen) {
     ls.classList.add('open');
-    fl.classList.add('hidden');
-    fr.classList.add('hidden');
+    if (tb) tb.classList.add('hidden');
+    document.getElementById('tab-list')?.classList.add('active');
     renderList('mob-list-body');
     if (routeMode) exitRouteMode();
     closeInfo();
     if (!isPc()) pushState('list');
   } else {
-    // FAB 다시 표시
-    fl.classList.remove('hidden', 'on');
-    fr.classList.remove('hidden', 'on');
+    if (tb) tb.classList.remove('hidden');
+    document.getElementById('tab-list')?.classList.remove('active');
     _setFabBottom(null);
   }
 }
@@ -1187,20 +1194,19 @@ function mobToggleRoute() {
   _mobListOpen = false;
 
   const rs = document.getElementById('mob-route-sheet');
-  const fl = document.getElementById('fab-list');
-  const fr = document.getElementById('fab-route');
+  const tb = document.getElementById('mob-tabbar');
 
   if (_mobRouteOpen) {
     rs.classList.add('open');
-    fl.classList.add('hidden');
-    fr.classList.add('hidden');
+    if (tb) tb.classList.add('hidden');
+    document.getElementById('tab-route')?.classList.add('active');
     enterRouteMode();
     closeInfo();
     if (!isPc()) pushState('route');
   } else {
     exitRouteMode();
-    fl.classList.remove('hidden', 'on');
-    fr.classList.remove('hidden', 'on');
+    if (tb) tb.classList.remove('hidden');
+    document.getElementById('tab-route')?.classList.remove('active');
     _setFabBottom(null);
   }
 }
@@ -1208,16 +1214,13 @@ function mobToggleRoute() {
 function liftFabsForInfo() {
   if (window.innerWidth > 768) return;
   if (_mobListOpen || _mobRouteOpen) return;
-  // info-card가 FAB 위에 있으므로 FAB 숨김
-  document.getElementById('fab-list')?.classList.add('hidden');
-  document.getElementById('fab-route')?.classList.add('hidden');
+  document.getElementById('mob-tabbar')?.classList.add('hidden');
 }
 
 function resetFabsForInfo() {
   if (window.innerWidth > 768) return;
   if (_mobListOpen || _mobRouteOpen) return;
-  document.getElementById('fab-list')?.classList.remove('hidden');
-  document.getElementById('fab-route')?.classList.remove('hidden');
+  document.getElementById('mob-tabbar')?.classList.remove('hidden');
   _setFabBottom(null);
 }
 
@@ -1496,8 +1499,8 @@ function filterModal(q) {
   const body=document.getElementById('sm-body');
   const role=_smRole, groups={};
   SHRINES.forEach((s,i)=>{
-    if(!markers[i])return;
-    if(q&&!s.name.includes(q)&&!s.diocese.includes(q))return;
+    if(q&&!s.name.includes(q)&&!s.diocese.includes(q)&&!s.addr.includes(q))return;
+    if(!s.lat||!s.lng)return; // 좌표 없는 성지만 제외
     if(!groups[s.diocese])groups[s.diocese]=[];
     groups[s.diocese].push({s,i});
   });
