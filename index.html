@@ -190,7 +190,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#C0B
   var ua=navigator.userAgent||'';
   if(!/KAKAOTALK/i.test(ua)) return;
   if(/iPhone|iPad/i.test(ua)){
-    document.write('<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px;text-align:center;gap:20px;background:#F5F3EE;font-family:sans-serif"><div style="font-size:44px">🌐</div><div style="font-size:17px;font-weight:800;color:#C42B2B">Safari에서 열어주세요</div><div style="font-size:13px;color:#888;line-height:1.9">하단 <b>···</b> → <b>Safari로 열기</b></div></div>');
+    document.write('<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px;text-align:center;gap:20px;background:#F5F3EE;font-family:sans-serif"><div style="font-size:44px">🌐</div><div style="font-size:17px;font-weight:800;color:#2563EB">Safari에서 열어주세요</div><div style="font-size:13px;color:#888;line-height:1.9">하단 <b>···</b> → <b>Safari로 열기</b></div></div>');
     return;
   }
   location.href='intent://'+location.href.replace(/https?:\/\//,'')+'#Intent;scheme=https;package=com.sec.android.app.sbrowser;end';
@@ -315,7 +315,7 @@ var map, MK=[], sel=-1, myOv=null;
 var specialMode=null; // null | 'seoul' | 'hanti'
 var sPL=[], sMK=[], actRoute=-1;
 var routeCache={}; // 서울 경로 API 결과 캐시
-var DC={d:'#C42B2B',l:'#2A8040'};
+var DC={d:'#2563EB',l:'#2A8040'};
 var KAKAO_REST='86a3b86e6c1b0210b8e4aba5f6c83b00';
 
 /* ── 십자가 핀 SVG ── */
