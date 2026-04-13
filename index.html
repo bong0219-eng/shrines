@@ -139,23 +139,17 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#C0B
 .sh-info{flex:1;min-width:0;}
 .sh-name{font-size:17px;font-weight:800;color:var(--tx);line-height:1.38;word-break:keep-all;white-space:pre-line;margin-bottom:3px;}
 .sh-sub{font-size:12px;color:var(--sub);}
-/* card-foot 방식: URL + 버튼 */
+/* card-foot 방식: URL + 화살표 */
 .sh-foot{
   border-top:1px solid #f0ede8;
   padding:10px 16px;
   display:flex;align-items:center;justify-content:space-between;
-  gap:10px;
+  gap:8px;
   background:#faf8f5;
+  cursor:pointer;
 }
 .sh-url{font-size:11px;color:var(--d);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
-.sh-go{
-  flex-shrink:0;
-  padding:8px 16px;border:none;border-radius:8px;
-  font-size:12px;font-weight:700;color:#fff;
-  cursor:pointer;font-family:inherit;white-space:nowrap;
-}
-.sh-go.d{background:var(--d);}
-.sh-go.l{background:var(--l);}
+.sh-arr{font-size:16px;color:var(--dim);flex-shrink:0;}
 
 /* ── 목록 ── */
 .list-wrap{flex:1;min-height:0;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:14px 13px 60px;display:flex;flex-direction:column;gap:10px;}
@@ -258,7 +252,7 @@ body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#C0B
       </div>
       <div class="sh-foot" id="shFoot">
         <span class="sh-url" id="shUrl"></span>
-        <button class="sh-go" id="shGo">홈페이지 →</button>
+        <span class="sh-arr">›</span>
       </div>
     </div>
 
@@ -393,7 +387,7 @@ function selMk(i){
 }
 
 /* ─ 바텀시트 공통 헬퍼 ─ */
-function _shShow(bdgText,bdgClass,bdgBg,regText,icoText,icoCls,nmText,subText,urlText,showBtn,btnCls,btnBg,btnCb){
+function _shShow(bdgText,bdgClass,bdgBg,regText,icoText,icoCls,nmText,subText,urlText,goCb){
   var bdg=document.getElementById('shBdg');
   bdg.textContent=bdgText; bdg.className='sh-bdg'+(bdgClass?' '+bdgClass:'');
   bdg.style.background=bdgBg||'';
@@ -403,15 +397,15 @@ function _shShow(bdgText,bdgClass,bdgBg,regText,icoText,icoCls,nmText,subText,ur
   document.getElementById('shNm').textContent=nmText;
   document.getElementById('shSub').textContent=subText||'';
   document.getElementById('shUrl').textContent=urlText;
+
+  /* sh-body + sh-foot 클릭 → 홈페이지 (경유지 등 goCb=null이면 클릭 비활성) */
+  var body=document.getElementById('sheet').querySelector('.sh-body');
   var foot=document.getElementById('shFoot');
-  var btn=document.getElementById('shGo');
-  foot.style.display='flex';
-  if(showBtn){
-    btn.style.display=''; btn.className='sh-go'+(btnCls?' '+btnCls:'');
-    btn.style.background=btnBg||''; btn.onclick=btnCb;
-  } else {
-    btn.style.display='none';
-  }
+  [body,foot].forEach(function(el){
+    el.onclick = goCb ? function(){ goCb(); } : null;
+    el.style.cursor = goCb ? 'pointer' : 'default';
+  });
+  foot.style.display = urlText ? 'flex' : 'none';
   document.getElementById('sheet').classList.add('open');
 }
 
@@ -420,12 +414,12 @@ function openSheet(i){
   var label=d.t==='d'?'교구 운영':'지자체·단체';
   var url=d.url.replace(/https?:\/\//,'').replace(/\/$/,'');
   _shShow(d.op, d.t, '', '📍 '+d.r, d.ico, d.t, d.n, label+' · '+d.r, url,
-    true, d.t, '', function(){location.href=d.url;});
+    function(){ location.href=d.url; });
   map.panTo(new kakao.maps.LatLng(d.lat,d.lng));
 }
 
 function openStopSheet(stop,rc,rname,num){
-  _shShow(rname,'','#'+rc.replace('#',''), num+'번 경유지', '📍', '', stop.n, '', stop.n, false);
+  _shShow(rname,'',rc, num+'번 경유지', '📍','', stop.n, '', '', null);
   map.panTo(new kakao.maps.LatLng(stop.lat,stop.lng));
 }
 
@@ -631,7 +625,7 @@ function openHantiSegSheet(sg){
     sg.name,
     sg.from+' → '+sg.to,
     url,
-    true, '', sg.c, function(){location.href='https://hantigil.or.kr/index';}
+    function(){ location.href='https://hantigil.or.kr/index'; }
   );
 }
 
