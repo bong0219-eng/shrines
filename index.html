@@ -102,7 +102,8 @@ body{
 .sh-region{font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .sh-body{
   display:flex;align-items:center;gap:12px;
-  padding:10px 16px 12px;cursor:pointer;
+  padding:10px 16px 12px;
+}
 }
 .sh-ico{
   width:44px;height:44px;flex-shrink:0;border-radius:10px;
@@ -117,8 +118,9 @@ body{
   border-top:1px solid #f0ede8;
   padding:10px 16px;
   display:flex;align-items:center;justify-content:space-between;gap:8px;
-  background:#faf8f5;cursor:pointer;
+  background:#faf8f5;
 }
+.sheet.open{cursor:pointer;}
 .sh-url{font-size:11px;color:var(--d);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
 .sh-arr{font-size:16px;color:var(--dim);flex-shrink:0;}
  
@@ -317,10 +319,14 @@ function openSheet(i){
   document.getElementById('shSub').textContent=label+' · '+d.r;
   document.getElementById('shUrl').textContent=urlTxt;
  
-  /* body + foot 탭 → 홈페이지 */
+  /* 시트 전체 탭 → 홈페이지 */
   var cb=function(){location.href=d.url;};
-  document.getElementById('shBody').onclick=cb;
-  document.getElementById('shFoot').onclick=cb;
+  document.getElementById('sheet').querySelector('.sh-body').onclick=null;
+  document.getElementById('shFoot').onclick=null;
+  document.getElementById('sheet').onclick=function(e){
+    if(e.target.closest('.sh-close')) return; /* 닫기 버튼은 제외 */
+    cb();
+  };
   document.getElementById('shFoot').style.display='flex';
  
   document.getElementById('sheet').classList.add('open');
