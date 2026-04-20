@@ -6,23 +6,25 @@
 <title>교구지도</title>
 <style>
 :root{
-  --d:#C42B2B;--d-lt:#FDF0F0;
+  --d:#2E7D32;--d-lt:#F1F8F1;          /* 녹색 (파란색→녹색) */
   --bg:#F5F3EE;--card:#FEFEFE;
   --bdr:#E4DDD6;--tx:#252018;
   --sub:#706858;--r:13px;
+  --hd-bg:#EEF6EE;                      /* 헤더 밝은 파스텔 녹색 */
+  --tab-h:40px;                         /* 탭버튼 높이 */
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;overflow:hidden;}
 body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);display:flex;flex-direction:column;}
 /* ── 헤더 ── */
-header{flex-shrink:0;background:var(--card);border-bottom:1px solid var(--bdr);padding:14px 16px 0;z-index:30;}
-.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+header{flex-shrink:0;background:var(--hd-bg);border-bottom:1px solid var(--bdr);padding:0 16px;z-index:30;min-height:70px;display:flex;flex-direction:column;justify-content:flex-end;}
+.hd{display:flex;align-items:center;justify-content:space-between;height:55px;}
 .hd-left{display:flex;align-items:center;gap:7px;}
-.hd h1{font-size:17px;font-weight:800;color:var(--d);letter-spacing:-.3px;}
-.hd-count{font-size:11px;font-weight:700;background:var(--d-lt);color:var(--d);padding:3px 9px;border-radius:10px;border:1px solid #e8c8c8;}
+.hd h1{font-size:22px;font-weight:800;color:var(--d);letter-spacing:-.3px;}
+.hd-count{font-size:11px;font-weight:700;background:var(--d-lt);color:var(--d);padding:3px 9px;border-radius:10px;border:1px solid #b8d8b8;}
 /* ── 탭 ── */
-.tabs{display:flex;gap:6px;padding-bottom:12px;}
-.tab{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:6px 16px;border-radius:20px;border:1.5px solid var(--bdr);background:var(--card);color:var(--sub);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;}
+.tabs{display:flex;gap:6px;padding-bottom:10px;}
+.tab{flex-shrink:0;display:flex;align-items:center;gap:5px;height:var(--tab-h);padding:0 16px;border-radius:20px;border:1.5px solid var(--bdr);background:var(--card);color:var(--sub);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;}
 .tab.on{background:var(--d);color:#fff;border-color:transparent;}
 .tab:hover:not(.on){background:var(--bg);}
 #main{flex:1;display:flex;overflow:hidden;min-height:0;background:var(--bg);}
@@ -71,15 +73,15 @@ header{flex-shrink:0;background:var(--card);border-bottom:1px solid var(--bdr);p
   box-shadow:0 2px 4px rgba(0,0,0,0.08);}
 .cb:hover{background:#f0f0f0;}
  
-#search-view{flex:1;overflow-y:auto;padding:18px 16px;display:none;background:var(--bg);}
-#search-view.on{display:block;}
+#search-view{width:100%;overflow-y:auto;padding:18px 16px;display:none;background:var(--bg);}
+#search-view.on{display:block;flex:1;}
 .ss{position:sticky;top:0;background:var(--bg);padding-bottom:12px;z-index:10;}
 .sr{display:flex;gap:8px;}
-#si{flex:1;padding:10px 13px;border:1.5px solid #ddd;border-radius:9px;
-  font-size:14px;font-family:'Noto Sans KR',sans-serif;background:white;outline:none;}
+#si{flex:1;padding:0 13px;height:52px;border:1.5px solid #ddd;border-radius:9px;
+  font-size:15px;font-family:'Noto Sans KR',sans-serif;background:white;outline:none;}
 #si:focus{border-color:#888;}
-#sb{padding:10px 15px;background:#111;color:white;border:none;border-radius:9px;
-  font-size:13px;font-weight:500;cursor:pointer;}
+#sb{padding:0 18px;height:52px;background:#111;color:white;border:none;border-radius:9px;
+  font-size:15px;font-weight:500;cursor:pointer;}
 #sb:hover{background:#333;}
 .sh{font-size:11px;color:#aaa;margin-top:6px;line-height:1.6;}
 #sres{margin-top:2px;}
@@ -96,29 +98,29 @@ header{flex-shrink:0;background:var(--card);border-bottom:1px solid var(--bdr);p
 .sod{font-size:13px;font-weight:700;margin-bottom:4px;}
 .sodd{font-size:12px;color:#555;line-height:1.7;}
  
-#list-view{flex:1;overflow-y:auto;padding:14px 13px 40px;display:none;background:var(--bg);}
-#list-view.on{display:block;}
+#list-view{width:100%;overflow-y:auto;padding:14px 13px 40px;display:none;background:var(--bg);}
+#list-view.on{display:block;flex:1;}
 .lv-gw{margin-bottom:20px;}
 .lv-gw-title{font-size:13px;font-weight:800;letter-spacing:.3px;padding:7px 12px;border-radius:8px;color:white;margin-bottom:8px;}
-/* 목록 카드 - 순례길 .card 구조 */
-.lv-card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:8px;overflow:hidden;cursor:pointer;}
+/* 목록 카드 - 순례길 디자인 */
+.lv-card{background:var(--card);border-radius:var(--r);border:1px solid var(--bdr);box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:10px;overflow:hidden;cursor:pointer;}
 .lv-card:active{opacity:.85;}
-.lv-cr1{display:flex;align-items:center;gap:7px;padding:12px 14px 0;}
-.lv-bdg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;color:#fff;white-space:nowrap;flex-shrink:0;opacity:.9;}
-.lv-creg{font-size:12px;color:var(--sub);}
-.lv-cr2{display:flex;align-items:center;gap:12px;padding:9px 14px 12px;}
-.lv-ico{width:44px;height:44px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;}
+.lv-cr1{display:flex;align-items:center;gap:8px;padding:13px 15px 0;}
+.lv-bdg{font-size:12px;font-weight:800;padding:4px 11px;border-radius:7px;color:#fff;white-space:nowrap;flex-shrink:0;}
+.lv-creg{font-size:10px;color:var(--sub);display:flex;align-items:center;gap:3px;}
+.lv-cr2{display:flex;align-items:center;gap:13px;padding:10px 15px 13px;}
+.lv-ico{width:54px;height:54px;flex-shrink:0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;background:#f0f0f0;}
 .lv-info{flex:1;min-width:0;}
-.lv-name{font-size:17px;font-weight:800;color:var(--tx);word-break:keep-all;line-height:1.38;}
-.lv-detail{font-size:12px;color:var(--sub);margin-top:2px;line-height:1.5;}
+.lv-name{font-size:16px;font-weight:800;color:var(--tx);word-break:keep-all;line-height:1.35;}
+.lv-detail{font-size:16px;color:var(--sub);margin-top:3px;line-height:1.5;}
 .lv-parishes-wrap{text-align:right;flex-shrink:0;}
 .lv-parishes{font-size:22px;font-weight:800;color:var(--tx);line-height:1;}
 .lv-parishes span{font-size:10px;font-weight:400;color:var(--sub);display:block;margin-top:2px;}
-.lv-cfoot{border-top:1px solid #f0ede8;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;background:#faf8f5;}
-.lv-curl{font-size:11px;color:var(--d);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
-.lv-carr{font-size:15px;color:var(--sub);flex-shrink:0;margin-left:6px;}
+.lv-cfoot{border-top:1px solid #f0ede8;padding:9px 15px;display:flex;align-items:center;justify-content:space-between;background:#faf9f6;}
+.lv-curl{font-size:10px;color:var(--d);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.lv-carr{font-size:16px;color:#aaa;flex-shrink:0;margin-left:6px;}
 @media(max-width:560px){
-  .tab{padding:7px 9px;font-size:11px;}
+  .tab{padding:0 10px;font-size:13px;height:var(--tab-h);}
   #card{width:180px;top:6px;right:6px;transition:none;}
   #gw-bar{flex-direction:row;flex-wrap:wrap;}
 }
@@ -244,6 +246,12 @@ header{flex-shrink:0;background:var(--card);border-bottom:1px solid var(--bdr);p
  
 <script src="data.js"></script>
 <script>
+const DIOCESE_ICO={
+  '서울대교구':'✝️','인천교구':'⛵','수원교구':'🙏','의정부교구':'🌿',
+  '원주교구':'🍃','춘천교구':'🌾','대전교구':'☘️',
+  '대구대교구':'⛰️','청주교구':'🌊','안동교구':'🍂','마산교구':'🌱','부산교구':'🌊',
+  '광주대교구':'💜','전주교구':'🌿','제주교구':'🌸'
+};
 function buildListView(){
   const gws=[
     {key:'서울관구',col:'#1a6bb5',dioceses:['서울대교구','인천교구','수원교구','의정부교구','원주교구','춘천교구','대전교구']},
@@ -264,11 +272,11 @@ function buildListView(){
       // row1: 뱃지 + 지역
       const r1=document.createElement('div');r1.className='lv-cr1';
       const bdg=document.createElement('span');bdg.className='lv-bdg';bdg.style.background=m.color;bdg.textContent=g.key;
-      const reg=document.createElement('span');reg.className='lv-creg';reg.textContent=m.region;
+      const reg=document.createElement('span');reg.className='lv-creg';reg.innerHTML='📍&nbsp;'+m.region;
       r1.appendChild(bdg);r1.appendChild(reg);
       // row2: 아이콘 + 정보 + 본당수
       const r2=document.createElement('div');r2.className='lv-cr2';
-      const ico=document.createElement('div');ico.className='lv-ico';ico.style.background=m.color;ico.textContent='✝';
+      const ico=document.createElement('div');ico.className='lv-ico';ico.textContent=DIOCESE_ICO[dName]||'✝';
       const inf=document.createElement('div');inf.className='lv-info';
       const nm=document.createElement('div');nm.className='lv-name';nm.textContent=dName;inf.appendChild(nm);
       if(detTxt){const dt=document.createElement('div');dt.className='lv-detail';dt.textContent=detTxt;inf.appendChild(dt);}
@@ -300,7 +308,7 @@ document.querySelectorAll('.tab').forEach(function(t){
     document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
     t.classList.add('on');
     const tab=t.dataset.tab;
-    document.getElementById('map-view').style.display=tab==='gwangu'?'block':'none';
+    document.getElementById('map-view').style.display=tab==='gwangu'?'flex':'none';
     document.getElementById('search-view').classList.toggle('on',tab==='search');
     document.getElementById('list-view').classList.toggle('on',tab==='list');
     if(tab==='list'){
